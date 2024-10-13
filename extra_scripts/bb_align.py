@@ -122,8 +122,8 @@ def main(ply_file_1, ply_file_2, output_file):
 
 if __name__ == "__main__":
     # Replace with the actual paths of the .ply files
-    ply_file_1 = "8.ply"
-    ply_file_2 = "9.ply"
+    ply_file_1 = "global_normalize/4.ply"
+    ply_file_2 = "global_normalize/5.ply"
     output_file = "aligned_9.ply"  # Output file path for the aligned second point cloud
     
     main(ply_file_1, ply_file_2, output_file)

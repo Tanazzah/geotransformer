@@ -6,7 +6,7 @@ def load_ply(file_path):
     mesh = o3d.io.read_point_cloud(file_path)
     return mesh
 
-# Function to create a bounding box
+# Function to create a bounding_box
 def create_bounding_box(mesh, color):
     bbox = mesh.get_axis_aligned_bounding_box()
     bbox.color = color  # Assign the color
@@ -34,6 +34,13 @@ def color_point_cloud(pcd, color):
     pcd.paint_uniform_color(color)
     return pcd
 
+# Function to shift a point cloud along the longitudinal axis (assumed x-axis)
+def shift_point_cloud(pcd, shift_value, axis=0):
+    translation_vector = np.zeros(3)
+    translation_vector[axis] = shift_value  # Shift along the specified axis
+    pcd.translate(translation_vector)
+    return pcd
+
 def main(ply_file_1, ply_file_2):
     # Load the ply files
     pcd1 = load_ply(ply_file_1)
@@ -43,8 +50,26 @@ def main(ply_file_1, ply_file_2):
     bbox1 = create_bounding_box(pcd1, [1, 0, 0])  # Red for the first ply
     bbox2 = create_bounding_box(pcd2, [0, 1, 0])  # Green for the second ply
     
+    # Visualize before step size (initial state)
+    print("Visualizing before applying step size (initial state)...")
+    o3d.visualization.draw_geometries([pcd1, pcd2, bbox1, bbox2],
+                                      window_name="Before Step Size",
+                                      width=800, height=600)
+    
+    # Shift ply_file_2 along the longitudinal axis (x-axis) by 0.2
+    pcd2 = shift_point_cloud(pcd2, shift_value=0.5, axis=0)  # Shifting along x-axis
+    
+    # Recompute the bounding box after shifting
+    bbox2_shifted = create_bounding_box(pcd2, [0, 1, 0])  # Green for the shifted ply
+    
+    # Visualize after step size (after shifting ply_file_2)
+    print("Visualizing after applying step size (translation)...")
+    o3d.visualization.draw_geometries([pcd1, pcd2, bbox1, bbox2_shifted],
+                                      window_name="After Step Size",
+                                      width=800, height=600)
+    
     # Compute the overlapping bounding box
-    overlap_bbox = compute_overlap_bbox(bbox1, bbox2)
+    overlap_bbox = compute_overlap_bbox(bbox1, bbox2_shifted)
     if overlap_bbox is None:
         print("No overlapping region found.")
         return
@@ -53,20 +78,14 @@ def main(ply_file_1, ply_file_2):
     cropped_pcd1 = crop_point_cloud(pcd1, overlap_bbox)
     cropped_pcd2 = crop_point_cloud(pcd2, overlap_bbox)
     
-    # Color the overlapping region with a light color (light blue)
-    color_point_cloud(pcd1, [1, 0, 0])  # Light blue
-    color_point_cloud(pcd2, [0, 1, 0])  # Light blue
+    # Color the cropped point clouds with a light color (light blue)
+    color_point_cloud(cropped_pcd1, [1, 0, 0])  # Red for cropped first ply
+    color_point_cloud(cropped_pcd2, [0, 1, 0])  # Green for cropped second ply
     
-    color_point_cloud(cropped_pcd1, [1, 0, 0])  # Light blue
-    color_point_cloud(cropped_pcd2, [0, 1, 0])  # Light blue
-
-    # Visualize the results
-    o3d.visualization.draw_geometries([pcd1, pcd2, bbox1, bbox2],
-                                      window_name="Original Point Clouds with Bounding Boxes",
-                                      width=800, height=600)
-
+    # Visualize after cropping the overlapping region
+    print("Visualizing after cropping the overlapping region...")
     o3d.visualization.draw_geometries([cropped_pcd1, cropped_pcd2, overlap_bbox],
-                                      window_name="Cropped and Colored Overlapping Region",
+                                      window_name="After Cropping",
                                       width=800, height=600)
     
     # Optionally save the cropped point clouds
@@ -76,8 +95,8 @@ def main(ply_file_1, ply_file_2):
 
 if __name__ == "__main__":
     # Replace with the actual paths of the .ply files
-    ply_file_1 = "ransac/4.ply"
-    ply_file_2 = "ransac/5.ply"
+    ply_file_1 = "global_normalize/4.ply"
+    ply_file_2 = "global_normalize/5.ply"
     
     main(ply_file_1, ply_file_2)
 
