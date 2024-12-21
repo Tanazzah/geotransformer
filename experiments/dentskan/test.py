@@ -1,6 +1,7 @@
 import os.path as osp
 import time
-
+import os
+import subprocess
 from geotransformer.engine import SingleTester
 from geotransformer.utils.common import get_log_string
 from geotransformer.datasets.registration.modelnet.dataset import ModelNetPairDataset
@@ -45,6 +46,16 @@ class Tester(SingleTester):
 
 
 def main():
+    bb_angle_script_path = '../../data/dentskan/bb_angle.py'
+    
+    # Run the bb_angle.py script
+    try:
+        print(f"Running {bb_angle_script_path}...")
+        result = subprocess.run(['python', bb_angle_script_path], check=True, capture_output=True, text=True)
+        print(f"Output from bb_angle.py:\n{result.stdout}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error occurred while running bb_angle.py:\n{e.stderr}")
+        return
     cfg = make_cfg()
     tester = Tester(cfg)
     tester.run()

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import os
 from geotransformer.modules.ops import apply_transform, pairwise_distance
 from geotransformer.modules.loss import WeightedCircleLoss
 from geotransformer.modules.registration.metrics import isotropic_transform_error
@@ -185,7 +186,7 @@ class Evaluator(nn.Module):
         self.counter += 1 
 
         # Read the source point cloud
-        source_pcd = o3d.io.read_point_cloud(f"/home/tanazzah/GeoTransformer/data/dentskan/ply2/{self.counter}.ply")
+        source_pcd = o3d.io.read_point_cloud(f"/home/tanazzah/GeoTransformer/data/dentskan/premodel/{self.counter}.ply")
         est_np = est_transform.squeeze(0).cpu().numpy()  # Remove the batch dimension
         #est_np = est_transform.cpu().numpy()  # Remove the batch dimension
         # Convert point cloud to numpy array
@@ -216,8 +217,9 @@ class Evaluator(nn.Module):
         src_corr = output_dict['src_corr_points'].cpu().numpy()
         ref_corr = output_dict['ref_corr_points'].cpu().numpy()
         matching = output_dict['matching_scores'].cpu().numpy()
-
-        o3d.io.write_point_cloud(f"/home/tanazzah/GeoTransformer/data/dentskan/ply3/{self.counter}.ply", transformed_pcd)
+        output_folder='/home/tanazzah/geoTransformer/data/dentskan/postmodel'
+        os.makedirs(output_folder, exist_ok=True)
+        o3d.io.write_point_cloud(f"/home/tanazzah/geoTransformer/data/dentskan/postmodel/{self.counter}.ply", transformed_pcd)
 
 
         

@@ -92,7 +92,7 @@ class ModelNetPairDataset(torch.utils.data.Dataset):
         self.check_overlap = self.min_overlap is not None or self.max_overlap is not None
         self.estimate_normal = estimate_normal
         self.overfitting_index = overfitting_index
-        self.data_files = os.listdir(osp.join(self.dataset_root,'ply2') )
+        self.data_files = os.listdir(osp.join(self.dataset_root,'premodel') )
         print(self.data_files)
         #self.data_files = load_pickle(osp.join(dataset_root, f'{subset}.pkl'))
         
@@ -140,8 +140,8 @@ class ModelNetPairDataset(torch.utils.data.Dataset):
     def _convert_ply_to_dict(self,index):
         ply0 = str(index) + ".ply"
         ply1 = str(index + 1) + ".ply"
-        ply_file_path_0 = os.path.join(self.dataset_root, "ply2", ply0)
-        ply_file_path_1 = os.path.join(self.dataset_root, "ply2", ply1)
+        ply_file_path_0 = os.path.join(self.dataset_root, "premodel", ply0)
+        ply_file_path_1 = os.path.join(self.dataset_root, "premodel", ply1)
         
         pcd0 = o3d.io.read_point_cloud(ply_file_path_0)
         points0 = np.asarray(pcd0.points)
